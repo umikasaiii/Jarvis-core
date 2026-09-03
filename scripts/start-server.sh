@@ -15,4 +15,11 @@ if [ ! -f .env ]; then
   cp .env.example .env
 fi
 
+# Load .env into the process environment - see start-dev.sh for why this is
+# required (editing .env alone never reaches --host/--port below otherwise).
+set -a
+# shellcheck disable=SC1091
+source .env
+set +a
+
 exec uvicorn app.main:app --host "${SERVER_HOST:-127.0.0.1}" --port "${SERVER_PORT:-8000}" --workers 1

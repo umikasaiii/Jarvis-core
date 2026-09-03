@@ -15,4 +15,13 @@ if [ ! -f .env ]; then
   cp .env.example .env
 fi
 
+# Load .env into the process environment - without this, editing .env alone
+# never changes what --host/--port below bind to (the app's own Settings
+# reads .env directly and logs the right value, but that's informational
+# only; it doesn't control the uvicorn socket).
+set -a
+# shellcheck disable=SC1091
+source .env
+set +a
+
 exec uvicorn app.main:app --reload --host "${SERVER_HOST:-127.0.0.1}" --port "${SERVER_PORT:-8000}"
