@@ -33,6 +33,7 @@ def build_provider(
     context_size: int,
     request_timeout: float,
     think: bool = False,
+    role: str | None = None,
 ) -> LlmProvider:
     if backend == "fake":
         return FakeLlmProvider(name=name, context_size=context_size)
@@ -43,6 +44,7 @@ def build_provider(
             context_size=context_size,
             request_timeout=request_timeout,
             think=think,
+            role=role,
         )
     if backend == "llamacpp":
         return LlamaCppProvider(
@@ -62,6 +64,7 @@ class ModelManager:
                 context_size=settings.fast_context_size,
                 request_timeout=settings.request_timeout,
                 think=settings.fast_think,
+                role=ExecutionTarget.FAST.value,
             ),
             ExecutionTarget.BRAIN: build_provider(
                 settings.brain_model_backend,
@@ -70,6 +73,7 @@ class ModelManager:
                 context_size=settings.brain_context_size,
                 request_timeout=settings.request_timeout,
                 think=settings.brain_think,
+                role=ExecutionTarget.BRAIN.value,
             ),
         }
         self._load_locks: dict[ExecutionTarget, asyncio.Lock] = {
