@@ -24,6 +24,7 @@ class FakeLlmProvider(LlmProvider):
         self.healthy = healthy
         self._loaded = False
         self.calls: list[str] = []
+        self.system_prompt_calls: list[str | None] = []
 
     def _reply_tokens(self, prompt: str) -> list[str]:
         words = f"[{self.name}] echo: {prompt}".split(" ")
@@ -40,6 +41,7 @@ class FakeLlmProvider(LlmProvider):
         if not self.healthy:
             raise LlmProviderError(f"{self.name} backend unavailable")
         self.calls.append(prompt)
+        self.system_prompt_calls.append(system_prompt)
         tokens = self._reply_tokens(prompt)
         if max_tokens is not None:
             tokens = tokens[:max_tokens]
@@ -57,6 +59,7 @@ class FakeLlmProvider(LlmProvider):
         if not self.healthy:
             raise LlmProviderError(f"{self.name} backend unavailable")
         self.calls.append(prompt)
+        self.system_prompt_calls.append(system_prompt)
         tokens = self._reply_tokens(prompt)
         if max_tokens is not None:
             tokens = tokens[:max_tokens]

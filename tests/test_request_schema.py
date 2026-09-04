@@ -14,6 +14,17 @@ def test_minimal_valid_request():
     assert req.allowFallback is True
     assert req.context is None
     assert req.requestId  # auto-generated
+    assert req.systemPrompt is None
+
+
+def test_system_prompt_optional_field_v1_1_0():
+    req = JarvisRequest(protocolVersion="1", text="hi", systemPrompt="Be terse.")
+    assert req.systemPrompt == "Be terse."
+
+
+def test_system_prompt_too_long_rejected():
+    with pytest.raises(ValidationError):
+        JarvisRequest(protocolVersion="1", text="hi", systemPrompt="x" * 8001)
 
 
 def test_blank_text_rejected():

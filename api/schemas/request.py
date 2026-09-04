@@ -30,6 +30,7 @@ class JarvisRequest(BaseModel):
     allowFallback: bool = True
     context: dict[str, Any] | None = None
     metadata: dict[str, Any] | None = None
+    systemPrompt: str | None = Field(default=None, max_length=8000)
 
     @field_validator("text")
     @classmethod

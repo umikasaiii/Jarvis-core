@@ -98,7 +98,7 @@ class RequestOrchestrator:
             async with self.queue.slot():
                 try:
                     result = await asyncio.wait_for(
-                        provider.generate(prompt, system_prompt=self.system_prompt),
+                        provider.generate(prompt, system_prompt=self._resolve_system_prompt(request)),
                         timeout=self.settings.request_timeout,
                     )
                 except asyncio.TimeoutError:
@@ -169,6 +169,16 @@ class RequestOrchestrator:
             warnings=warnings,
         )
 
+    def _resolve_system_prompt(self, request: JarvisRequest) -> str:
+        """A per-request `systemPrompt` (v1.1.0, additive) wins over the
+        server's own default when present and non-blank; every existing
+        client that never sends it observes exactly the prior behavior
+        (self.system_prompt), unchanged."""
+        override = request.systemPrompt
+        if override and override.strip():
+            return override
+        return self.system_prompt
+
     async def _resolve_provider(self, request: JarvisRequest, decision):
         target = decision.target
         warnings: list[str] = []
@@ -214,7 +224,7 @@ class RequestOrchestrator:
 
         try:
             async with self.queue.slot():
-                stream_iter = provider.stream(prompt, system_prompt=self.system_prompt)
+                stream_iter = provider.stream(prompt, system_prompt=self._resolve_system_prompt(request))
                 async for chunk in _with_timeout(stream_iter, self.settings.request_timeout):
                     if chunk.content:
                         full_text_parts.append(chunk.content)
