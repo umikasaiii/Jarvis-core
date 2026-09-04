@@ -58,6 +58,7 @@ class Settings(BaseSettings):
     fast_threads: int = Field(default=4, alias="FAST_THREADS")
     fast_gpu_layers: int = Field(default=0, alias="FAST_GPU_LAYERS")
     fast_base_url: str = Field(default="http://127.0.0.1:11434", alias="FAST_BASE_URL")
+    fast_think: bool = Field(default=False, alias="FAST_THINK")
 
     # --- BRAIN model -----------------------------------------------------
     brain_model_backend: ModelBackend = Field(default="fake", alias="BRAIN_MODEL_BACKEND")
@@ -67,6 +68,7 @@ class Settings(BaseSettings):
     brain_threads: int = Field(default=4, alias="BRAIN_THREADS")
     brain_gpu_layers: int = Field(default=0, alias="BRAIN_GPU_LAYERS")
     brain_base_url: str = Field(default="http://127.0.0.1:11434", alias="BRAIN_BASE_URL")
+    brain_think: bool = Field(default=False, alias="BRAIN_THINK")
 
     # --- Routing heuristics -----------------------------------------------------
     router_fast_max_chars: int = Field(default=220, alias="ROUTER_FAST_MAX_CHARS")

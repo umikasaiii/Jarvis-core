@@ -32,12 +32,17 @@ def build_provider(
     base_url: str,
     context_size: int,
     request_timeout: float,
+    think: bool = False,
 ) -> LlmProvider:
     if backend == "fake":
         return FakeLlmProvider(name=name, context_size=context_size)
     if backend == "ollama":
         return OllamaProvider(
-            name=name, base_url=base_url, context_size=context_size, request_timeout=request_timeout
+            name=name,
+            base_url=base_url,
+            context_size=context_size,
+            request_timeout=request_timeout,
+            think=think,
         )
     if backend == "llamacpp":
         return LlamaCppProvider(
@@ -56,6 +61,7 @@ class ModelManager:
                 base_url=settings.fast_base_url,
                 context_size=settings.fast_context_size,
                 request_timeout=settings.request_timeout,
+                think=settings.fast_think,
             ),
             ExecutionTarget.BRAIN: build_provider(
                 settings.brain_model_backend,
@@ -63,6 +69,7 @@ class ModelManager:
                 base_url=settings.brain_base_url,
                 context_size=settings.brain_context_size,
                 request_timeout=settings.request_timeout,
+                think=settings.brain_think,
             ),
         }
         self._load_locks: dict[ExecutionTarget, asyncio.Lock] = {

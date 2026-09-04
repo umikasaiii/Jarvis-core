@@ -22,11 +22,13 @@ class OllamaProvider(LlmProvider):
         base_url: str = "http://127.0.0.1:11434",
         context_size: int = 4096,
         request_timeout: float = 120.0,
+        think: bool = False,
     ) -> None:
         self.name = name
         self.base_url = base_url.rstrip("/")
         self.context_size = context_size
         self.request_timeout = request_timeout
+        self.think = think
         self._loaded = False
 
     def _client(self) -> httpx.AsyncClient:
@@ -36,6 +38,7 @@ class OllamaProvider(LlmProvider):
         payload: dict = {
             "model": self.name,
             "prompt": prompt,
+            "think": self.think,
             "options": {"num_ctx": self.context_size},
         }
         if system_prompt:
@@ -129,10 +132,9 @@ class OllamaProvider(LlmProvider):
     async def load_model(self) -> None:
         try:
             async with self._client() as client:
-                resp = await client.post(
-                    "/api/generate",
-                    json={"model": self.name, "prompt": "", "stream": False},
-                )
+                payload = self._build_prompt("", None)
+                payload["stream"] = False
+                resp = await client.post("/api/generate", json=payload)
                 resp.raise_for_status()
         except httpx.HTTPError as exc:
             raise LlmProviderError(f"Failed to warm up Ollama model {self.name}: {exc}") from exc
